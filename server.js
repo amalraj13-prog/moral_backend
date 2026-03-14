@@ -17,7 +17,13 @@ const io = new Server(server, {
   },
 });
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://moral-frontend.vercel.app",
+    "http://localhost:5173",
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));
