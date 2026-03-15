@@ -20,26 +20,17 @@ const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error("Not allowed by CORS"));
-  },
+  origin: [
+    "https://moral-frontend.vercel.app",
+    "http://localhost:5173",
+  ],
   credentials: true,
 }));
-
-// Allow cross-origin requests for static files (videos, audio)
-app.use("/uploads", (req, res, next) => {
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  next();
-});
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));

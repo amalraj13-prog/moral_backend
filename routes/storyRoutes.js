@@ -15,7 +15,8 @@ router.post(
   async (req, res) => {
     try {
       const { title, content, moral } = req.body;
-      const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+      const baseUrl = process.env.BACKEND_URL || "http://localhost:5000";
 
       const videoUrl = req.files.video
         ? `${baseUrl}/uploads/${req.files.video[0].filename}`
@@ -84,7 +85,8 @@ router.put(
     try {
       const { title, content, moral } = req.body;
       const updateData = { title, content, moral };
-      const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+
+      const baseUrl = process.env.BACKEND_URL || "http://localhost:5000";
 
       if (req.files && req.files.video) {
         updateData.videoUrl = `${baseUrl}/uploads/${req.files.video[0].filename}`;
