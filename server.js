@@ -10,20 +10,36 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  "https://moral-frontend.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
+
 const io = new Server(server, {
   cors: {
-    origin: "https://moral-frontend.vercel.app",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
 
 app.use(cors({
-  origin: [
-    "https://moral-frontend.vercel.app",
-    "http://localhost:5173",
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
 }));
+
+// Allow cross-origin requests for static files (videos, audio)
+app.use("/uploads", (req, res, next) => {
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+});
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/authRoutes"));

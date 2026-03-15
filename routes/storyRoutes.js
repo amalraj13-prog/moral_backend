@@ -15,13 +15,14 @@ router.post(
   async (req, res) => {
     try {
       const { title, content, moral } = req.body;
+      const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
 
       const videoUrl = req.files.video
-        ? `http://localhost:5000/uploads/${req.files.video[0].filename}`
+        ? `${baseUrl}/uploads/${req.files.video[0].filename}`
         : "";
 
       const audioUrl = req.files.audio
-        ? `http://localhost:5000/uploads/${req.files.audio[0].filename}`
+        ? `${baseUrl}/uploads/${req.files.audio[0].filename}`
         : "";
 
       const story = await Story.create({
@@ -83,12 +84,13 @@ router.put(
     try {
       const { title, content, moral } = req.body;
       const updateData = { title, content, moral };
+      const baseUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
 
       if (req.files && req.files.video) {
-        updateData.videoUrl = `http://localhost:5000/uploads/${req.files.video[0].filename}`;
+        updateData.videoUrl = `${baseUrl}/uploads/${req.files.video[0].filename}`;
       }
       if (req.files && req.files.audio) {
-        updateData.audioUrl = `http://localhost:5000/uploads/${req.files.audio[0].filename}`;
+        updateData.audioUrl = `${baseUrl}/uploads/${req.files.audio[0].filename}`;
       }
 
       const story = await Story.findByIdAndUpdate(req.params.id, updateData, { new: true });
