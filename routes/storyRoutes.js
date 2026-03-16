@@ -1,6 +1,6 @@
 const express = require("express");
 const Story = require("../models/Story");
-const upload = require("../middleware/upload");
+const { upload, uploadToCloudinary } = require("../middleware/upload");
 const router = express.Router();
 
 /* ============================
@@ -16,15 +16,26 @@ router.post(
     try {
       const { title, content, moral } = req.body;
 
-      const baseUrl = process.env.BACKEND_URL || "http://localhost:5000";
+      // Upload files to Cloudinary for permanent cloud storage
+      // (Render's local disk is ephemeral and wiped on every restart)
+      let videoUrl = "";
+      let audioUrl = "";
 
-      const videoUrl = req.files.video
-        ? `${baseUrl}/uploads/${req.files.video[0].filename}`
-        : "";
+      if (req.files && req.files.video) {
+        videoUrl = await uploadToCloudinary(
+          req.files.video[0].buffer,
+          "moral_mitra",
+          "video"
+        );
+      }
 
-      const audioUrl = req.files.audio
-        ? `${baseUrl}/uploads/${req.files.audio[0].filename}`
-        : "";
+      if (req.files && req.files.audio) {
+        audioUrl = await uploadToCloudinary(
+          req.files.audio[0].buffer,
+          "moral_mitra",
+          "auto"
+        );
+      }
 
       const story = await Story.create({
         title,
@@ -86,13 +97,20 @@ router.put(
       const { title, content, moral } = req.body;
       const updateData = { title, content, moral };
 
-      const baseUrl = process.env.BACKEND_URL || "http://localhost:5000";
-
+      // Upload new files to Cloudinary if provided
       if (req.files && req.files.video) {
-        updateData.videoUrl = `${baseUrl}/uploads/${req.files.video[0].filename}`;
+        updateData.videoUrl = await uploadToCloudinary(
+          req.files.video[0].buffer,
+          "moral_mitra",
+          "video"
+        );
       }
       if (req.files && req.files.audio) {
-        updateData.audioUrl = `${baseUrl}/uploads/${req.files.audio[0].filename}`;
+        updateData.audioUrl = await uploadToCloudinary(
+          req.files.audio[0].buffer,
+          "moral_mitra",
+          "auto"
+        );
       }
 
       const story = await Story.findByIdAndUpdate(req.params.id, updateData, { new: true });
